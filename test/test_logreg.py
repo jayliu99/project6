@@ -26,20 +26,21 @@ def test_updates():
 
 	# Load logistic regression model
 	log_model = logreg.LogisticRegression(num_feats=6, max_iter=100, tol=0.001, learning_rate=0.4, batch_size=50)
+	log_model.set_W(np.array([0, 0, 0, 0, 0, 0, 0]))
 
-	# Train model & check that your gradient is being calculated correctly
+	# Train model & check that your gradient 
+	# and loss is being calculated correctly
 	start_grad = log_model.calculate_gradient(X_train, y_train)
+	start_loss = log_model.loss_function(X_train, y_train)
 	log_model.train_model(X_train, y_train, X_val, y_val)
 	end_grad = log_model.calculate_gradient(X_train, y_train)
-	# At the end of training, gradient should be less negative (closer to zero) than it was at the start
-	assert(np.sum(end_grad) > np.sum(start_grad))
+	end_loss = log_model.loss_function(X_train, y_train)
 
-	# Check that your loss function is correct and that 
-	# you have reasonable losses at the end of training
-	loss_train = log_model.loss_function(X_train, y_train)
-	loss_val = log_model.loss_function(X_val, y_val)
-	assert(loss_train < 0.5)
-	assert(loss_val < 0.5)
+	# At the end of training, gradient should be different than it was at the start
+	assert(not np.array_equal(start_grad, end_grad))
+	# At the end of training, loss should be less than it was at the start
+	assert(end_loss < start_loss)
+	
 
 
 def test_predict():
@@ -56,6 +57,7 @@ def test_predict():
 
 	# Load logistic regression model
 	log_model = logreg.LogisticRegression(num_feats=6, max_iter=100, tol=0.001, learning_rate=0.4, batch_size=50)
+	log_model.set_W(np.array([0, 0, 0, 0, 0, 0, 0]))
 
 	# Train model & check that self.W is being updated as expected
 	start_W = log_model.get_W()
@@ -68,12 +70,14 @@ def test_predict():
 	accuracy_train = log_model.get_accuracy(X_train, y_train)
 	accuracy_val = log_model.get_accuracy(X_val, y_val)
 	# "Reasonable" estimates = accuracy of at least 70%
+	# Hyperparameters and weights' initialization fixed.
 	assert(accuracy_train > 0.7)
 	assert(accuracy_val > 0.7)
 
-	
-
-
-
-
-
+	# Check that model produces correct predictions for a toy dataset
+	X = np.array([[1, 2, 3],
+				   [2, 3, 1],
+					[1, 3, 2]])
+	log_model.set_W(np.array([0, 0, 0]))
+	y_toy_pred = log_model.make_prediction(X)
+	assert(np.array_equal(y_toy_pred, np.array([0.5, 0.5, 0.5])))

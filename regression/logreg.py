@@ -112,6 +112,17 @@ class LogisticRegression(BaseRegressor):
     def __init__(self, num_feats, learning_rate=0.1, tol=0.0001, max_iter=100, batch_size=12):
         super().__init__(num_feats, learning_rate, tol, max_iter, batch_size)
 
+    def set_W(self, W):
+        """
+        Set initial value of W (for unit testing purposes)
+
+        Params:
+            W (np.ndarray): weight vector with bias term (initialized)
+        """
+
+        self.W = W
+
+
     def get_W(self) -> np.ndarray:
         """
         Returns self.W for unit testing purposes
